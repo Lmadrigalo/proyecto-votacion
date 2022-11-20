@@ -1,0 +1,5 @@
+flask==2.2.2
+datetime~=4.7
+waitress~=2.1.2
+pyjwt==2.6.0
+Flask-SQLAlchemy==3.0.2

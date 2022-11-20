@@ -1,0 +1,6 @@
+{
+  "servidor": "127.0.0.1",
+  "puerto": "9999",
+  "data-db-connection": "mongodb+srv://Grupo4:44@grupo4.k7xipam.mongodb.net/?retryWrites=true&w=majority",
+  "name-db": "app-votacion"
+}
