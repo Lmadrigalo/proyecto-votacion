@@ -7,14 +7,12 @@ from flask import jsonify
 from waitress import serve
 from flask_jwt_extended import create_access_token, verify_jwt_in_request
 from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 import json
 import requests
 
 app = Flask(__name__)
-# Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = "1234"  # Change this!
+app.config["JWT_SECRET_KEY"] = "123"
 jwt = JWTManager(app)
 
 
@@ -39,18 +37,20 @@ def inicio_sesion():
 @app.before_request
 def verificar_peticion():
     print("ejecuci'on callback ...")
-
+    #print("url->",request.url)
+    #print("url->", limpiarURL(request.url))
+    #print("metodo->", request.method)
 
     endPoint = limpiarURL(request.path)
-    excludedRoutes = ["/login","/partidos"]  #mirar si esta bien
+    excludedRoutes = ["/login","/candidatos","/partidos","/mesas"]
 
     if excludedRoutes.__contains__(request.path):
         pass
     elif verify_jwt_in_request():
         usuario = get_jwt_identity()
         if usuario["rol"] is not None:
-            tienePersmiso = validarPermiso(endPoint, request.method, usuario["rol"]["_id"])
-            if not tienePersmiso:
+            tienePermiso = validarPermiso(endPoint, request.method, usuario["rol"]["_id"])
+            if not tienePermiso:
                 return jsonify({"message": "Permission denied"}), 401
         else:
             return jsonify({"message": "Permission denied"}), 401
@@ -102,6 +102,15 @@ def crear_candidato():
     json = respuesta.json()
     return jsonify(json)
 
+@app.route('/candidatos/_id', methods=["PUT"])
+def eliminar_candidato():
+
+    headers = {"Content-Type": "application/json; charset=utf8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/candidatos/_id"
+    respuesta = requests.get(url,headers=headers)
+    json = respuesta.json()
+    return jsonify(json)
 
 @app.route('/partidos', methods=["GET"])
 def consulta_partidos():
