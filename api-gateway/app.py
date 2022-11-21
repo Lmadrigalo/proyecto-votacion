@@ -39,20 +39,18 @@ def inicio_sesion():
 @app.before_request
 def verificar_peticion():
     print("ejecuci'on callback ...")
-    #print("url->",request.url)
-    #print("url->", limpiarURL(request.url))
-    #print("metodo->", request.method)
+
 
     endPoint = limpiarURL(request.path)
-    excludedRoutes = ["/login","/materias"]
+    excludedRoutes = ["/login","/partidos"]  #mirar si esta bien
 
     if excludedRoutes.__contains__(request.path):
         pass
     elif verify_jwt_in_request():
         usuario = get_jwt_identity()
         if usuario["rol"] is not None:
-            tienePermiso = validarPermiso(endPoint, request.method, usuario["rol"]["_id"])
-            if not tienePermiso:
+            tienePersmiso = validarPermiso(endPoint, request.method, usuario["rol"]["_id"])
+            if not tienePersmiso:
                 return jsonify({"message": "Permission denied"}), 401
         else:
             return jsonify({"message": "Permission denied"}), 401
