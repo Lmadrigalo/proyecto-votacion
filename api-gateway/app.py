@@ -12,10 +12,10 @@ import json
 import requests
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "123"
+app.config["JWT_SECRET_KEY"] = "123" # Change this!
 jwt = JWTManager(app)
 
-
+############################## INICIO DE SESION ##############################
 @app.route("/login", methods=["POST"])
 def inicio_sesion():
     datos_entrada = request.get_json()
@@ -33,7 +33,7 @@ def inicio_sesion():
     else:
         return jsonify({"mensaje": "verificar correo y contraseña"})
 
-
+############################## VERIFICA SESION ##############################
 @app.before_request
 def verificar_peticion():
     print("ejecuci'on callback ...")
@@ -55,7 +55,7 @@ def verificar_peticion():
         else:
             return jsonify({"message": "Permission denied"}), 401
 
-
+############################## LIMPIA URL ##############################
 def limpiarURL(url):
     partes = url.split("/")
     for laParte in partes:
@@ -63,7 +63,7 @@ def limpiarURL(url):
             url = url.replace(laParte, "?")
     return url
 
-
+############################## VALIDA PERMISO ##############################
 def validarPermiso(endPoint, metodo, idRol):
     configuracion = cargar_configuracion()
     url = configuracion["url-ms-usuarios"] + "/rolpermiso/" + str(idRol)
@@ -82,9 +82,9 @@ def validarPermiso(endPoint, metodo, idRol):
         pass
     return tienePermiso
 
-
+############################## CRUD CANDIDATOS ##############################
 @app.route('/candidatos', methods=["GET"])
-def consulta_candidatos():
+def consulta_candidato():
     headers = {"Content-Type": "application/json; charset=utf8"}
     configuracion = cargar_configuracion()
     url = configuracion["url-ms-estructura"] + "/candidatos"
@@ -102,18 +102,29 @@ def crear_candidato():
     json = respuesta.json()
     return jsonify(json)
 
-@app.route('/candidatos/_id', methods=["PUT"])
-def eliminar_candidato():
-
-    headers = {"Content-Type": "application/json; charset=utf8"}
+@app.route("/candidatos/<string:id>", methods=['PUT'])
+def modificarCandidato(id):
+    datosEntrada = request.get_json()
+    headers = {"Content-Type": "application/json; charset=utf-8"}
     configuracion = cargar_configuracion()
-    url = configuracion["url-ms-estructura"] + "/candidatos/_id"
-    respuesta = requests.get(url,headers=headers)
+    url = configuracion["url-ms-estructura"] + "/candidatos/" + id
+    respuesta = requests.put(url, headers=headers, json=datosEntrada)
     json = respuesta.json()
     return jsonify(json)
 
+@app.route("/candidatos/<string:id>", methods=['DELETE'])
+def eliminarCandidato(id):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/candidatos/" + id
+    print(url)
+    respuesta = requests.delete(url, headers=headers)
+    json = respuesta.json()
+    return jsonify(json)
+
+############################## CRUD PARTIDOS ##############################
 @app.route('/partidos', methods=["GET"])
-def consulta_partidos():
+def consulta_partido():
     headers = {"Content-Type": "application/json; charset=utf8"}
     configuracion = cargar_configuracion()
     url = configuracion["url-ms-estructura"] + "/partidos"
@@ -131,8 +142,29 @@ def crear_partido():
     json = respuesta.json()
     return jsonify(json)
 
+@app.route("/partidos/<string:id>", methods=['PUT'])
+def modificarPartido(id):
+    datosEntrada = request.get_json()
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/partidos/" + id
+    respuesta = requests.put(url, headers=headers, json=datosEntrada)
+    json = respuesta.json()
+    return jsonify(json)
+
+@app.route("/partidos/<string:id>", methods=['DELETE'])
+def eliminarPartido(id):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/partidos/" + id
+    print(url)
+    respuesta = requests.delete(url, headers=headers)
+    json = respuesta.json()
+    return jsonify(json)
+
+############################## CRUD MESAS ##############################
 @app.route('/mesas', methods=["GET"])
-def consulta_mesas():
+def consulta_mesa():
     headers = {"Content-Type": "application/json; charset=utf8"}
     configuracion = cargar_configuracion()
     url = configuracion["url-ms-estructura"] + "/mesas"
@@ -150,12 +182,32 @@ def crear_mesa():
     json = respuesta.json()
     return jsonify(json)
 
+@app.route("/mesas/<string:id>", methods=['PUT'])
+def modificarMesa(id):
+    datosEntrada = request.get_json()
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/mesas/" + id
+    respuesta = requests.put(url, headers=headers, json=datosEntrada)
+    json = respuesta.json()
+    return jsonify(json)
+
+@app.route("/mesas/<string:id>", methods=['DELETE'])
+def eliminarMesa(id):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    configuracion = cargar_configuracion()
+    url = configuracion["url-ms-estructura"] + "/mesas/" + id
+    print(url)
+    respuesta = requests.delete(url, headers=headers)
+    json = respuesta.json()
+    return jsonify(json)
+
+##################################################################################
 
 @app.route('/')
 def home():
     print("path home")
     return 'API GATEWAY RUNNING . . .'
-
 
 def cargar_configuracion():
     with open("config.json") as archivo:
